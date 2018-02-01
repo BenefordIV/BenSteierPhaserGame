@@ -1,5 +1,8 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO);
 var platforms;
+var player;
+var cursors;
+var stars;
 
 var GameState = {
     //load before game
@@ -48,7 +51,7 @@ var GameState = {
         game.physics.arcade.enable(player);
 
         //give additional physics to the player
-        player.body.bounce.y = 0.2;
+        player.body.bounce.y = .3;
         player.body.gravity.y = 300;
         player.body.collideWorldBounds = true;
 
@@ -56,11 +59,47 @@ var GameState = {
         player.animations.add('left', [0, 1, 2, 3], 10, true);
         player.animations.add('right', [5, 6, 7, 8], 10, true);
         
+        cursors = game.input.keyboard.createCursorKeys();
+
+        //create a stars group
+        stars = game.add.group();
+        //enable physics
+        stars.enableBody = true;
+
+        for(var i = 0; i <= 12; i++){
+            //create star objects that are at random spots on the x and y access
+            var star = stars.create(i * 70, 0, 'star');
+            star.body.gravity.y = 6;
+
+            star.body.bounc.y = 0.7 * Math.random() * 0.2;
+        }
     },
 
     //update game constantly with the website
     update: function() {
+        //add collision functionallity for player and ground
+        var hitPlatform = game.physics.arcade.collide(player, platforms);
 
+        //reset player velocity
+        player.body.velocity.x = 0;
+
+        //simple if statement to move the player object.
+        if(cursors.left.isDown){
+            player.body.velocity.x = -150;
+            player.animations.play('left');
+        }
+        else if (cursors.right.isDown){
+            player.body.velocity.x = 150;
+            player.animations.play('right');
+        }
+        else{
+            player.animations.stop();
+            player.frame = 4;
+        }
+
+        if(cursors.up.isDown && player.body.touching.down && hitPlatform){
+            player.body.velocity.y = -350;
+        }
     }
 };
 
