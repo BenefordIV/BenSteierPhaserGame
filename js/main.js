@@ -3,6 +3,8 @@ var platforms;
 var player;
 var cursors;
 var stars;
+var score = 0;
+var scoreText;
 
 var GameState = {
     //load before game
@@ -71,14 +73,19 @@ var GameState = {
             var star = stars.create(i * 70, 0, 'star');
             star.body.gravity.y = 6;
 
-            star.body.bounc.y = 0.7 * Math.random() * 0.2;
+            star.body.bounce.y = 0.7 * Math.random() * 0.2;
         }
+
+        //add a score methodology
+        scoreText = game.add.text(16,16,'score: 0', {fontSize: '32px', fill: '#000'});
     },
 
     //update game constantly with the website
     update: function() {
         //add collision functionallity for player and ground
         var hitPlatform = game.physics.arcade.collide(player, platforms);
+        game.physics.arcade.collide(stars, platforms);
+        game.physics.arcade.overlap(player, stars, collectStar, null, this);
 
         //reset player velocity
         player.body.velocity.x = 0;
@@ -97,11 +104,21 @@ var GameState = {
             player.frame = 4;
         }
 
-        if(cursors.up.isDown && player.body.touching.down && hitPlatform){
+        if(cursors.up.justDown && player.body.touching.down && hitPlatform){
             player.body.velocity.y = -350;
         }
     }
 };
+
+function collectStar (player, star) {
+
+    // Removes the star from the screen
+    star.kill();
+
+    score += 10;
+    scoreText.text = "Score" + score;
+
+}
 
 game.state.add('GameState', GameState);
 
